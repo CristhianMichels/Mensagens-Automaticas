@@ -5,6 +5,7 @@ import pyautogui
 
 mensagens = []
 while True:
+    #Adicionar mensagens caso não tenha sido adicionado ainda
     if not mensagens:
         while True:
             nova_mensagem = funcoes.validacao('Adicionar uma mensagem?')        
@@ -15,12 +16,20 @@ while True:
                 break
     print(mensagens)
 
+    #limpar as mensagens
     apagar_mensagens = funcoes.validacao('Apagar as mensagens?')
     if apagar_mensagens == 's':
-        mensagens = []
+        mensagens = []  
     else:
+    #enviar mensagens
         executar = funcoes.validacao('Enviar mensagens?')
-        if executar == 'n':
+        if executar == 's':
+            time.sleep(3)
+            for mensagem in mensagens:
+                pyautogui.write(mensagem)
+                time.sleep(0.5)
+                pyautogui.press("enter")
+        else:
             break
         
         
