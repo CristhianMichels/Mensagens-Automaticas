@@ -26,9 +26,7 @@ while True:
         if executar == 's':
             time.sleep(3)
             for mensagem in mensagens:
-                pyautogui.write(mensagem)
-                time.sleep(0.5)
-                pyautogui.press("enter")
+                funcoes.escrever(mensagem)
         else:
             break
         
