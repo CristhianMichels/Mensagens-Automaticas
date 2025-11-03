@@ -30,7 +30,7 @@ while True:
                 if 'enviar_arquivo' in mensagem:
                     caminho = mensagem.split(" ", 1)[1]
                     funcoes.enviar_arquivo(caminho)
-                    print('cu')
+
                     
                 else:
                     funcoes.escrever(mensagem)

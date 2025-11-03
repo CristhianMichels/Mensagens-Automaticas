@@ -1,6 +1,5 @@
 import time
 import pyautogui
-import pyperclip
 import os
 
 #Valida decisão de continuar (sim ou não)
@@ -22,12 +21,18 @@ def enviar_arquivo(caminho):
     if not os.path.exists(caminho): #se não existir ou não encontrar função retorna
         print(f'Arquivo não encontrado {caminho}')
         return
-    #copia e envia o arquivo
-    pyperclip.copy(caminho) #copia o caminho
-    
-    #cola e envia o arquivo
-    pyautogui.hotkey('ctrl','v')
-    time.sleep(3)
+
+    os.startfile(caminho)
+    time.sleep(1)
+    pyautogui.hotkey('ctrl', 'c')
+    time.sleep(0.5)
+    pyautogui.hotkey('alt', 'f4')
+    time.sleep(1)
+    pyautogui.hotkey('ctrl', 'v')
+    time.sleep(2.5)
     pyautogui.press('enter')
     time.sleep(2)
+
+
+
     
