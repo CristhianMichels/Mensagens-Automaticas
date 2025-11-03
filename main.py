@@ -19,14 +19,21 @@ while True:
     #limpar as mensagens
     apagar_mensagens = funcoes.validacao('Apagar as mensagens?')
     if apagar_mensagens == 's':
-        mensagens = []  
+        mensagens = []    
     else:
     #enviar mensagens
         executar = funcoes.validacao('Enviar mensagens?')
         if executar == 's':
-            time.sleep(3)
+            print('Você tem 5 segundos para clicar na conversa...')
+            time.sleep(5)
             for mensagem in mensagens:
-                funcoes.escrever(mensagem)
+                if 'enviar_arquivo' in mensagem:
+                    caminho = mensagem.split(" ", 1)[1]
+                    funcoes.enviar_arquivo(caminho)
+                    print('cu')
+                    
+                else:
+                    funcoes.escrever(mensagem)
         else:
             break
         
