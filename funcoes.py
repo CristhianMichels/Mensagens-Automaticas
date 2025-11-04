@@ -1,6 +1,7 @@
 import time
 import pyautogui
 import os
+import pyperclip
 
 #Valida decisão de continuar (sim ou não)
 def validacao(texto):   
@@ -16,6 +17,14 @@ def escrever(texto):
     time.sleep(0.5)
     pyautogui.press("enter")
     
+def caracteres_especiais(texto):
+    pyperclip.copy(texto)
+    time.sleep(0.2)
+    pyautogui.hotkey('ctrl', 'v')
+    time.sleep(0.5)
+    pyautogui.press('enter')
+
+        
 #Envia arquivos (vídeo, foto, pdf, etc)
 def enviar_arquivo(caminho):
     if not os.path.exists(caminho): #se não existir ou não encontrar função retorna
