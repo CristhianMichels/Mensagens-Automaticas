@@ -1,8 +1,9 @@
 import funcoes
 import time
-import pyautogui
+import re
+import pyperclip
 
-
+area_transferencia_anterior = pyperclip.paste() #guarda os itens copiados da aréa de transferência
 mensagens = []
 while True:
     #Adicionar mensagens caso não tenha sido adicionado ainda
@@ -30,14 +31,12 @@ while True:
                 if 'enviar_arquivo' in mensagem:
                     caminho = mensagem.split(" ", 1)[1]
                     funcoes.enviar_arquivo(caminho)
-
-                    
                 else:
-                    funcoes.escrever(mensagem)
+                    if re.search(r"[^a-zA-Z0-9\s]", mensagem):
+                        funcoes.caracteres_especiais(mensagem)
+                    else:
+                        funcoes.escrever(mensagem)
         else:
             break
-        
-        
 
-
-    
+pyperclip.copy(area_transferencia_anterior) #mantém o item copiado antes de executar o programa

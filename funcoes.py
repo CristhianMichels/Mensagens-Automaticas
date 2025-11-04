@@ -17,6 +17,8 @@ def escrever(texto):
     time.sleep(0.5)
     pyautogui.press("enter")
     
+    
+#Escreve o texto mas com caracteres especiais
 def caracteres_especiais(texto):
     pyperclip.copy(texto)
     time.sleep(0.2)
@@ -28,9 +30,9 @@ def caracteres_especiais(texto):
 #Envia arquivos (vídeo, foto, pdf, etc)
 def enviar_arquivo(caminho):
     if not os.path.exists(caminho): #se não existir ou não encontrar função retorna
-        print(f'Arquivo não encontrado {caminho}')
+        print(f'Arquivo não encontrado {caminho}') #FAZER UMA OPÇÃO DE DIGITAR NOVAMENTE O CAMINHO DO ARQUIVO CASO NAO ENCONTRADO!!!!!!
         return
-
+    
     os.startfile(caminho)
     time.sleep(1)
     pyautogui.hotkey('ctrl', 'c')
