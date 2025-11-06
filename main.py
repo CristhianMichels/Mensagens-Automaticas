@@ -2,28 +2,37 @@ import funcoes
 import time
 import re
 import pyperclip
+import os
 
 def main():
     try:
         
         area_transferencia_anterior = pyperclip.paste() #guarda os itens copiados da aréa de transferência
+        
         mensagens = []
+        
+        #Adicionar se houver, mensagens na lista
+        if os.path.exists('mensagens.txt'):
+            with open('mensagens.txt', 'r') as arquivo:
+                mensagens = [linha.strip() for linha in arquivo.readlines() if linha.strip()]
+        
         while True:
-            #Adicionar mensagens caso não tenha sido adicionado ainda
-            if not mensagens:
-                while True:
-                    nova_mensagem = funcoes.validacao('Adicionar uma mensagem?')        
-                    if nova_mensagem == 's':
-                        mensagem = input('Digite a mensagem: ')
-                        mensagens.append(mensagem)
-                    else:
-                        break
+            #Adicionar mensagens
+            adicionar = funcoes.validacao('Adicionar uma nova mensagem?')
+            while adicionar == 's':
+                mensagem = input('Digite a mensagem:').strip()
+                mensagens.append(mensagem)
+                with open('mensagens.txt', 'a') as arquivo:
+                    arquivo.write(str(mensagem) + '\n')
+                adicionar = funcoes.validacao('Adicionar outra mensagem?')
+
             print(mensagens)
 
             #limpar as mensagens
             apagar_mensagens = funcoes.validacao('Apagar as mensagens?')
             if apagar_mensagens == 's':
-                mensagens = []    
+                mensagens = []
+                open('mensagens.txt','w').close()
             else:
             #enviar mensagens
                 executar = funcoes.validacao('Enviar mensagens?')
