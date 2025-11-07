@@ -3,6 +3,7 @@ import time
 import re
 import pyperclip
 import os
+import customtkinter as ctk
 
 def main():
     try:
@@ -10,6 +11,39 @@ def main():
         area_transferencia_anterior = pyperclip.paste() #guarda os itens copiados da aréa de transferência
         
         mensagens = []
+        
+        
+        #modo
+        ctk.set_appearance_mode('dark')
+        #criação
+        app = ctk.CTk()
+        app.title('Mensagens Automáticas')
+        app.geometry('350x400')
+        
+        #campos
+        #label
+        label_mensagens = ctk.CTkLabel(app, text='Mensagens Automáticas')
+        label_mensagens.pack(pady = 5)
+        
+        #buttons
+        botao_apagar = ctk.CTkButton(app, text='Apagar tudo')
+        botao_apagar.pack(pady = 10)
+        
+        botao_enviar = ctk.CTkButton(app, text='Enviar')
+        botao_enviar.pack(pady = 10)
+        
+        #entry
+        campo_mensagens = ctk.CTkEntry(app,placeholder_text='Digite uma mensagem')
+        campo_mensagens.pack(pady = 10)
+        
+        #buttons
+        botao_adicionar = ctk.CTkButton(app, text='Adicionar')
+        botao_adicionar.pack(pady = 10)
+        
+        #iniciar
+        app.mainloop()
+        
+        
         
         #Adicionar se houver, mensagens na lista
         if os.path.exists('mensagens.txt'):
