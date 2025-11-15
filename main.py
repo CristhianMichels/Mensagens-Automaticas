@@ -41,10 +41,11 @@ def main():
             mensagens.clear()
             mensagens.extend(novas_mensagens)
             # Reescreve o arquivo também
-            with open('mensagens.txt', 'w', encoding='utf-8') as arquivo:
-                for msg in mensagens:
-                    arquivo.write(msg + "\n")
-            
+            open('mensagens.txt','w').close()
+            for mensagem in mensagens:
+                with open('mensagens.txt', 'a') as arquivo:
+                    arquivo.write(str(mensagem) + '\n')
+                    campo_mensagens.delete(0, 'end')
 
         def apagar():
             mensagens.clear()
