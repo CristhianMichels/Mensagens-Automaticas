@@ -10,13 +10,13 @@ def main():
         area_transferencia_anterior = pyperclip.paste() #guarda os itens copiados da aréa de transferência
             
         mensagens = []
-            
+        
         #Adicionar se houver, mensagens na lista
         if os.path.exists('mensagens.txt'):
             with open('mensagens.txt', 'r') as arquivo:
                 mensagens = [linha.strip() for linha in arquivo.readlines() if linha.strip()]
-                
-            
+
+                    
         def adicionar_mensagens():
             mensagem = campo_mensagens.get().strip()
             if mensagem:
@@ -25,13 +25,35 @@ def main():
                     arquivo.write(str(mensagem) + '\n')
                 campo_mensagens.delete(0, 'end')
             atualizar_textbox()
+            ativar_botoes()
 
+        def apagar():
+            mensagens.clear()
+            open('mensagens.txt','w').close()
+            atualizar_textbox()
+            ativar_botoes()
+
+        def enviar():
+            print('Você tem 5 segundos para clicar na conversa...')
+            time.sleep(5)
+            for mensagem in mensagens:
+                if 'enviar_arquivo' in mensagem:
+                    caminho = mensagem.split(" ", 1)[1]
+                    funcoes.enviar_arquivo(caminho)
+                else:
+                    if re.search(r"[^a-zA-Z0-9\s]", mensagem):
+                        funcoes.caracteres_especiais(mensagem)
+                    else:
+                        funcoes.escrever(mensagem)
+        
         def atualizar_textbox():
             """Exibe o conteúdo da lista de mensagens no bloco de texto."""
+            bloco_texto.edit_modified(False)
             bloco_texto.configure(state='normal')
             bloco_texto.delete("1.0", "end")
             for msg in mensagens:
                 bloco_texto.insert("end", msg + "\n")
+            bloco_texto.edit_modified(False)
             bloco_texto.configure(state='normal')
 
         def sincronizar_lista_com_textbox():
@@ -46,26 +68,30 @@ def main():
                 for mensagem in mensagens:
                     arquivo.write(str(mensagem) + '\n')
                     campo_mensagens.delete(0, 'end')
-
-        def apagar():
-            mensagens.clear()
-            open('mensagens.txt','w').close()
-            atualizar_textbox()
-
-        def enviar():
-            print('Você tem 5 segundos para clicar na conversa...')
-            time.sleep(5)
-            for mensagem in mensagens:
-                if 'enviar_arquivo' in mensagem:
-                    caminho = mensagem.split(" ", 1)[1]
-                    funcoes.enviar_arquivo(caminho)
-                else:
-                    if re.search(r"[^a-zA-Z0-9\s]", mensagem):
-                        funcoes.caracteres_especiais(mensagem)
-                    else:
-                        funcoes.escrever(mensagem)
-            
+            ativar_botoes()
         
+        def desativar_botoes():
+            botao_atualizar.configure(state="disabled")
+            botao_apagar.configure(state="disabled")
+            botao_enviar.configure(state="disabled")
+            botao_adicionar.configure(state="disabled")
+            
+        def ativar_botoes():
+            botao_atualizar.configure(state="normal")
+            botao_apagar.configure(state="normal")
+            botao_enviar.configure(state="normal")
+            botao_adicionar.configure(state="normal")
+                    
+        def modificar_textbox(event=None):
+            if bloco_texto.edit_modified():
+                bloco_texto.edit_modified(False)
+                desativar_botoes()
+                botao_atualizar.configure(state="normal")
+        
+        def modificar_entry(event=None):
+            desativar_botoes()
+            botao_adicionar.configure(state="normal")
+                    
     finally:
         try:
             pyperclip.copy(area_transferencia_anterior)
@@ -96,6 +122,9 @@ def main():
     bloco_texto = ctk.CTkTextbox(frame_texto, width=350, height=250, corner_radius=8)
     bloco_texto.pack(fill="both", expand=True, padx=5, pady=5)
 
+    bloco_texto.edit_modified(False)
+    bloco_texto.bind("<<Modified>>", modificar_textbox)
+
     # Inicializa com mensagens existentes
     atualizar_textbox()
     
@@ -125,12 +154,13 @@ def main():
 
     campo_mensagens = ctk.CTkEntry(frame_entry, placeholder_text='Digite uma mensagem', width=200, height=32)
     campo_mensagens.pack(side='left', padx=(0, 5))
+    campo_mensagens.bind("<KeyRelease>", modificar_entry)
 
     botao_adicionar = ctk.CTkButton(frame_entry, text='Adicionar', command=adicionar_mensagens, height=30, width=90)
     botao_adicionar.pack(side='left')
 
+    ativar_botoes()
     app.mainloop()
     
-        
 if __name__ == "__main__":
     main()
