@@ -78,7 +78,7 @@ def main():
 
     app = ctk.CTk()
     app.title('Mensagens Automáticas')
-    app.geometry('350x400')
+    app.geometry('350x450')
 
     # Configurações de grid para centralização vertical
     app.grid_rowconfigure((0, 1, 2, 3), weight=1)
@@ -86,12 +86,12 @@ def main():
 
     # Label (título)
     label_mensagens = ctk.CTkLabel(app, text='Mensagens Automáticas', font=ctk.CTkFont(size=15, weight="bold"))
-    label_mensagens.grid(row=0, column=0, pady=(20, 5))
+    label_mensagens.grid(row=0, column=0, pady=(10, 3))
     
     
     # ======== BLOCO DE TEXTO (tipo bloco de notas) ========
     frame_texto = ctk.CTkFrame(app)
-    frame_texto.grid(row=0, column=0, padx=15, pady=10, sticky="nsew")
+    frame_texto.grid(row=1, column=0, padx=15, pady=10, sticky="nsew")
 
     bloco_texto = ctk.CTkTextbox(frame_texto, width=350, height=250, corner_radius=8)
     bloco_texto.pack(fill="both", expand=True, padx=5, pady=5)
@@ -103,7 +103,7 @@ def main():
     
     # Frame principal que agrupa os botões e o campo de entrada
     frame_principal = ctk.CTkFrame(app, fg_color='transparent')
-    frame_principal.grid(row=1, column=0, sticky="n")
+    frame_principal.grid(row=2, column=0, sticky="n")
 
     # Frame dos botões principais (alinhados à esquerda)
     frame_botoes = ctk.CTkFrame(frame_principal, fg_color='transparent')
