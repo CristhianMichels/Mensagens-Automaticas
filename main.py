@@ -42,8 +42,8 @@ def main():
             mensagens.extend(novas_mensagens)
             # Reescreve o arquivo também
             open('mensagens.txt','w').close()
-            for mensagem in mensagens:
-                with open('mensagens.txt', 'a') as arquivo:
+            with open('mensagens.txt', 'a') as arquivo:
+                for mensagem in mensagens:
                     arquivo.write(str(mensagem) + '\n')
                     campo_mensagens.delete(0, 'end')
 
