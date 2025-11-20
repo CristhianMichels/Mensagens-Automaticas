@@ -1,103 +1,100 @@
 import funcoes
-import time
-import re
 import pyperclip
 import os
 import customtkinter as ctk
 
-def main():
-    try:
-        area_transferencia_anterior = pyperclip.paste() #guarda os itens copiados da aréa de transferência
-            
-        mensagens = []
-        
-        #Adicionar se houver, mensagens na lista
-        if os.path.exists('mensagens.txt'):
-            with open('mensagens.txt', 'r') as arquivo:
-                mensagens = [linha.strip() for linha in arquivo.readlines() if linha.strip()]
+def main():        
+    mensagens = []
 
-                    
-        def adicionar_mensagens():
-            mensagem = campo_mensagens.get().strip()
-            if mensagem:
-                mensagens.append(mensagem)
-                with open('mensagens.txt', 'a') as arquivo:
-                    arquivo.write(str(mensagem) + '\n')
-                campo_mensagens.delete(0, 'end')
-            atualizar_textbox()
-            ativar_botoes()
 
-        def apagar():
-            mensagens.clear()
-            open('mensagens.txt','w').close()
-            atualizar_textbox()
-            ativar_botoes()
+    #Adicionar se houver, mensagens na lista
+    if os.path.exists('mensagens.txt'):
+        with open('mensagens.txt', 'r') as arquivo:
+            mensagens = [linha.strip() for linha in arquivo.readlines() if linha.strip()]
 
-        def enviar():
-            print('Você tem 5 segundos para clicar na conversa...')
-            time.sleep(5)
-            for mensagem in mensagens:
-                if 'enviar_arquivo' in mensagem:
-                    caminho = mensagem.split(" ", 1)[1]
-                    funcoes.enviar_arquivo(caminho)
-                else:
-                    if re.search(r"[^a-zA-Z0-9\s]", mensagem):
-                        funcoes.caracteres_especiais(mensagem)
-                    else:
-                        funcoes.escrever(mensagem)
-        
-        def atualizar_textbox():
-            """Exibe o conteúdo da lista de mensagens no bloco de texto."""
-            bloco_texto.edit_modified(False)
-            bloco_texto.configure(state='normal')
-            bloco_texto.delete("1.0", "end")
-            for msg in mensagens:
-                bloco_texto.insert("end", msg + "\n")
-            bloco_texto.edit_modified(False)
-            bloco_texto.configure(state='normal')
-
-        def sincronizar_lista_com_textbox():
-            """Atualiza a lista 'mensagens' com o que está no bloco de texto."""
-            conteudo = bloco_texto.get("1.0", "end").strip()
-            novas_mensagens = [linha for linha in conteudo.split("\n") if linha.strip()]
-            mensagens.clear()
-            mensagens.extend(novas_mensagens)
-            # Reescreve o arquivo também
-            open('mensagens.txt','w').close()
+                
+    def adicionar_mensagens():
+        mensagem = campo_mensagens.get().strip()
+        if mensagem:
+            mensagens.append(mensagem)
             with open('mensagens.txt', 'a') as arquivo:
-                for mensagem in mensagens:
-                    arquivo.write(str(mensagem) + '\n')
-                    campo_mensagens.delete(0, 'end')
-            ativar_botoes()
+                arquivo.write(str(mensagem) + '\n')
+            campo_mensagens.delete(0, 'end')
+        atualizar_textbox()
+        ativar_botoes()
+
+    def apagar():
+        mensagens.clear()
+        open('mensagens.txt','w').close()
+        atualizar_textbox()
+        ativar_botoes()
+
+    def enviar():
+        segundos = 5
+        desativar_botoes()
         
-        def desativar_botoes():
-            botao_atualizar.configure(state="disabled")
-            botao_apagar.configure(state="disabled")
-            botao_enviar.configure(state="disabled")
-            botao_adicionar.configure(state="disabled")
-            
-        def ativar_botoes():
-            botao_atualizar.configure(state="normal")
-            botao_apagar.configure(state="normal")
-            botao_enviar.configure(state="normal")
-            botao_adicionar.configure(state="normal")
-                    
-        def modificar_textbox(event=None):
-            if bloco_texto.edit_modified():
-                bloco_texto.edit_modified(False)
-                desativar_botoes()
-                botao_atualizar.configure(state="normal")
+        def atualizar_contagem():
+            nonlocal segundos
+            label_alerta.configure(text=f"Você tem {segundos} segundos para clicar na conversa...")
+
+            if segundos >= 0:
+                segundos -= 1
+                app.after(1200, atualizar_contagem)
+            else:
+                funcoes.enviar_tudo(mensagens)
+                ativar_botoes()
+                label_alerta.configure(text='')
+                
+        atualizar_contagem()
+
+
+    
+    def atualizar_textbox():
+        """Exibe o conteúdo da lista de mensagens no bloco de texto."""
+        bloco_texto.configure(state='normal')
+        bloco_texto.delete("1.0", "end")
+        for msg in mensagens:
+            bloco_texto.insert("end", msg + "\n")
+        bloco_texto.edit_modified(False)
+        bloco_texto.configure(state='normal')
+
+    def sincronizar_lista_com_textbox():
+        """Atualiza a lista 'mensagens' com o que está no bloco de texto."""
+        conteudo = bloco_texto.get("1.0", "end").strip()
+        novas_mensagens = [linha for linha in conteudo.split("\n") if linha.strip()]
+        mensagens.clear()
+        mensagens.extend(novas_mensagens)
+        # Reescreve o arquivo também
+        open('mensagens.txt','w').close()
+        with open('mensagens.txt', 'a') as arquivo:
+            for mensagem in mensagens:
+                arquivo.write(str(mensagem) + '\n')
+            campo_mensagens.delete(0, 'end')
+        ativar_botoes()
+    
+    def desativar_botoes():
+        botao_atualizar.configure(state="disabled")
+        botao_apagar.configure(state="disabled")
+        botao_enviar.configure(state="disabled")
+        botao_adicionar.configure(state="disabled")
         
-        def modificar_entry(event=None):
+    def ativar_botoes():
+        botao_atualizar.configure(state="normal")
+        botao_apagar.configure(state="normal")
+        botao_enviar.configure(state="normal")
+        botao_adicionar.configure(state="normal")
+                
+    def modificar_textbox(event=None):
+        if bloco_texto.edit_modified():
+            bloco_texto.edit_modified(False)
             desativar_botoes()
-            botao_adicionar.configure(state="normal")
-                    
-    finally:
-        try:
-            pyperclip.copy(area_transferencia_anterior)
-        except Exception:
-            pass  # caso o clipboard esteja inacessível, não quebra o programa
+            botao_atualizar.configure(state="normal")
+    
+    def modificar_entry(event=None):
+        desativar_botoes()
+        botao_adicionar.configure(state="normal")
         
+                  
      
     # ======== INTERFACE ================
     ctk.set_appearance_mode('dark')
@@ -158,9 +155,22 @@ def main():
 
     botao_adicionar = ctk.CTkButton(frame_entry, text='Adicionar', command=adicionar_mensagens, height=30, width=90)
     botao_adicionar.pack(side='left')
+    
+    frame_alerta = ctk.CTkFrame(frame_principal, fg_color='transparent')
+    frame_alerta.grid(row=2, column=0, pady=(0, 10))
+
+    label_alerta = ctk.CTkLabel(frame_alerta, text='', font=ctk.CTkFont(size=14))
+    label_alerta.pack()
 
     ativar_botoes()
     app.mainloop()
     
 if __name__ == "__main__":
-    main()
+    area_transferencia_anterior = pyperclip.paste() #guarda os itens copiados da aréa de transferência
+    try:
+        main()
+    finally:
+        try:
+            pyperclip.copy(area_transferencia_anterior)
+        except:
+            pass

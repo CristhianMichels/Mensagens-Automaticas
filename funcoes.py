@@ -2,6 +2,7 @@ import time
 import pyautogui
 import os
 import pyperclip
+import re
 
 #Escreve o texto
 def escrever(texto):
@@ -36,6 +37,13 @@ def enviar_arquivo(caminho):
     pyautogui.press('enter')
     time.sleep(2)
 
-
-
-    
+def enviar_tudo(mensagens):
+    for mensagem in mensagens:
+        if 'enviar_arquivo' in mensagem:
+            caminho = mensagem.split(" ", 1)[1]
+            enviar_arquivo(caminho)
+        else:
+            if re.search(r"[^a-zA-Z0-9\s]", mensagem):
+                caracteres_especiais(mensagem)
+            else:
+                escrever(mensagem)
