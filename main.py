@@ -12,7 +12,10 @@ def main():
         with open('mensagens.txt', 'r') as arquivo:
             mensagens = [linha.strip() for linha in arquivo.readlines() if linha.strip()]
 
-                
+    
+    def limpar_alerta():
+        label_alerta.configure(text='')
+              
     def adicionar_mensagens():
         mensagem = campo_mensagens.get().strip()
         if mensagem:
@@ -28,6 +31,7 @@ def main():
         open('mensagens.txt','w').close()
         atualizar_textbox()
         ativar_botoes()
+        limpar_alerta()
 
     def enviar():
         segundos = 5
@@ -41,9 +45,13 @@ def main():
                 segundos -= 1
                 app.after(1200, atualizar_contagem)
             else:
-                funcoes.enviar_tudo(mensagens)
+                sucesso, info = funcoes.enviar_tudo(mensagens)
                 ativar_botoes()
-                label_alerta.configure(text='')
+                
+                if sucesso:
+                    limpar_alerta()
+                else:
+                    label_alerta.configure(text=f'Caminho do arquivo "{info}" não encontrado', font=ctk.CTkFont(size=12) )    
                 
         atualizar_contagem()
 
@@ -83,11 +91,12 @@ def main():
         botao_apagar.configure(state="normal")
         botao_enviar.configure(state="normal")
         botao_adicionar.configure(state="normal")
-                
+                 
     def modificar_textbox(event=None):
         if bloco_texto.edit_modified():
             bloco_texto.edit_modified(False)
             desativar_botoes()
+            limpar_alerta()
             botao_atualizar.configure(state="normal")
     
     def modificar_entry(event=None):

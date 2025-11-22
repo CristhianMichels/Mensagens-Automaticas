@@ -22,10 +22,9 @@ def caracteres_especiais(texto):
         
 #Envia arquivos (vídeo, foto, pdf, etc)
 def enviar_arquivo(caminho):
-    if not os.path.exists(caminho): #se não existir ou não encontrar função retorna
-        print(f'Arquivo não encontrado {caminho}') #FAZER UMA OPÇÃO DE DIGITAR NOVAMENTE O CAMINHO DO ARQUIVO CASO NAO ENCONTRADO!!!!!!
-        return
-    
+    if not os.path.exists(caminho):
+        return False, caminho
+ 
     os.startfile(caminho)
     time.sleep(2)
     pyautogui.hotkey('ctrl', 'c')
@@ -36,14 +35,24 @@ def enviar_arquivo(caminho):
     time.sleep(2.5)
     pyautogui.press('enter')
     time.sleep(2)
+    
+    return True, None
 
 def enviar_tudo(mensagens):
+    erro_encontrado = None
     for mensagem in mensagens:
-        if 'enviar_arquivo' in mensagem:
+        if mensagem.startswith('enviar_arquivo'):
             caminho = mensagem.split(" ", 1)[1]
-            enviar_arquivo(caminho)
+            sucesso, info = enviar_arquivo(caminho)
+            if not sucesso:
+                erro_encontrado = info
+                print('Erro: ', erro_encontrado)
         else:
             if re.search(r"[^a-zA-Z0-9\s]", mensagem):
                 caracteres_especiais(mensagem)
             else:
                 escrever(mensagem)
+    
+    if erro_encontrado:
+        return False, erro_encontrado
+    return True, None
