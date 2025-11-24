@@ -1,34 +1,26 @@
 import funcoes
+import mensagens_repo
 import pyperclip
-import os
 import customtkinter as ctk
 
 def main():        
-    mensagens = []
 
 
-    #Adicionar se houver, mensagens na lista
-    if os.path.exists('mensagens.txt'):
-        with open('mensagens.txt', 'r') as arquivo:
-            mensagens = [linha.strip() for linha in arquivo.readlines() if linha.strip()]
+    mensagens = mensagens_repo.carregar_mensagens()
 
     
     def limpar_alerta():
         label_alerta.configure(text='')
               
-    def adicionar_mensagens():
+    def adicionar():
         mensagem = campo_mensagens.get().strip()
-        if mensagem:
-            mensagens.append(mensagem)
-            with open('mensagens.txt', 'a') as arquivo:
-                arquivo.write(str(mensagem) + '\n')
+        if mensagens_repo.adicionar_mensagens(mensagens, mensagem):
             campo_mensagens.delete(0, 'end')
         atualizar_textbox()
         ativar_botoes()
 
     def apagar():
-        mensagens.clear()
-        open('mensagens.txt','w').close()
+        mensagens_repo.apagar_tudo(mensagens)
         atualizar_textbox()
         ativar_botoes()
         limpar_alerta()
@@ -70,14 +62,13 @@ def main():
         """Atualiza a lista 'mensagens' com o que está no bloco de texto."""
         conteudo = bloco_texto.get("1.0", "end").strip()
         novas_mensagens = [linha for linha in conteudo.split("\n") if linha.strip()]
+        
         mensagens.clear()
         mensagens.extend(novas_mensagens)
-        # Reescreve o arquivo também
-        open('mensagens.txt','w').close()
-        with open('mensagens.txt', 'a') as arquivo:
-            for mensagem in mensagens:
-                arquivo.write(str(mensagem) + '\n')
-            campo_mensagens.delete(0, 'end')
+        
+        mensagens_repo.salvar_mensagens(mensagens)
+        campo_mensagens.delete(0, 'end')
+        
         ativar_botoes()
     
     def desativar_botoes():
@@ -162,7 +153,7 @@ def main():
     campo_mensagens.pack(side='left', padx=(0, 5))
     campo_mensagens.bind("<KeyRelease>", modificar_entry)
 
-    botao_adicionar = ctk.CTkButton(frame_entry, text='Adicionar', command=adicionar_mensagens, height=30, width=90)
+    botao_adicionar = ctk.CTkButton(frame_entry, text='Adicionar', command=adicionar, height=30, width=90)
     botao_adicionar.pack(side='left')
     
     frame_alerta = ctk.CTkFrame(frame_principal, fg_color='transparent')
