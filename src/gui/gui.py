@@ -1,5 +1,5 @@
-import funcoes
-import mensagens_repo
+import src.core.automation as automation
+import src.core.mensagens_repo as mensagens_repo
 import customtkinter as ctk
 
 def interface():
@@ -36,7 +36,7 @@ def interface():
                 segundos -= 1
                 app.after(1200, atualizar_contagem)
             else:
-                sucesso, info = funcoes.enviar_tudo(mensagens)
+                sucesso, info = automation.enviar_tudo(mensagens)
                 ativar_botoes()
                 
                 if sucesso:

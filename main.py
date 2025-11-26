@@ -1,5 +1,5 @@
-import gui
-import utils
+import src.gui.gui as gui
+import src.utils.utils as utils
 import customtkinter as ctk
 
 def main():        

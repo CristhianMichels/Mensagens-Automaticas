@@ -1,6 +1,6 @@
 import os
 
-arquivo_mensagem = 'mensagens.txt'
+arquivo_mensagem = 'data/mensagens.txt'
 
 
 def carregar_mensagens():
