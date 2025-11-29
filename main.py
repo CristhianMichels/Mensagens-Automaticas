@@ -1,9 +1,8 @@
-import src.gui.gui as gui
+from src.gui import gui_main
 import src.utils.utils as utils
-import customtkinter as ctk
 
 def main():        
-    gui.interface()
+    gui_main.interface()
     
     
 if __name__ == "__main__":
