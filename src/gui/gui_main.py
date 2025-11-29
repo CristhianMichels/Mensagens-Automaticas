@@ -1,10 +1,10 @@
 import src.core.automation as automation
-import src.core.mensagens_repo as mensagens_repo
+import src.core.messages_repo as messages_repo
 import src.gui.gui_help as gui_help
 import customtkinter as ctk
 
 def interface():
-    mensagens = mensagens_repo.carregar_mensagens()
+    mensagens = messages_repo.carregar_mensagens()
     
     janela_ajuda = None
     
@@ -14,14 +14,14 @@ def interface():
               
     def adicionar():
         mensagem = campo_mensagens.get().strip()
-        if mensagens_repo.adicionar_mensagens(mensagens, mensagem):
+        if messages_repo.adicionar_mensagens(mensagens, mensagem):
             campo_mensagens.delete(0, 'end')
         atualizar_textbox()
         ativar_botoes()
 
 
     def apagar():
-        mensagens_repo.apagar_tudo(mensagens)
+        messages_repo.apagar_tudo(mensagens)
         atualizar_textbox()
         ativar_botoes()
         limpar_alerta()
@@ -69,7 +69,7 @@ def interface():
         mensagens.clear()
         mensagens.extend(novas_mensagens)
         
-        mensagens_repo.salvar_mensagens(mensagens)
+        messages_repo.salvar_mensagens(mensagens)
         campo_mensagens.delete(0, 'end')
         
         ativar_botoes()
