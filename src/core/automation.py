@@ -5,15 +5,52 @@ import pyperclip
 import re
 import pygetwindow as gw
 
-#Escreve o texto
+
 def escrever(texto):
+    """ 
+    Digita um texto simples na interface ativa e envia com Enter.
+
+    Esta função usa o `pyautogui` para escrever caracteres sem suporte
+    especial (acentuação, emojis, caracteres de outra codificação etc.).
+    Após escrever, envia automaticamente a tecla Enter.
+
+    Atenção:
+        - Requer que a janela correta já esteja aberta.
+        - Não suporta caracteres especiais; use `caracteres_especiais()`.
+
+    Args:
+        texto (str): Texto a ser digitado.
+
+    Returns:
+        None
+    """
+        
     pyautogui.write(texto)
     time.sleep(0.5)
     pyautogui.press("enter")
     
     
-#Escreve o texto mas com caracteres especiais
 def caracteres_especiais(texto):
+    """ 
+    Cola texto contendo caracteres especiais usando a área de transferência.
+
+    A função copia o texto para a área de transferência usando `pyperclip`
+    e executa o atalho Ctrl+V para colar. É útil quando `pyautogui.write()`
+    não consegue reproduzir corretamente acentos, emojis ou símbolos.
+
+    Nota:
+        - Esta função utiliza a área de transferência do sistema, mas **não**
+          é responsável por salvar ou restaurar o conteúdo original. Caso a
+          aplicação precise manter a área de transferência intacta, essa lógica
+          deve ser tratada externamente (fora desta função).
+
+    Args:
+        texto (str): Conteúdo a ser colado.
+
+    Returns:
+        None
+    """
+    
     pyperclip.copy(texto)
     time.sleep(0.5)
     pyautogui.hotkey('ctrl', 'v')
@@ -22,6 +59,24 @@ def caracteres_especiais(texto):
 
 
 def focar_arquivo(caminho):
+    """
+    Tenta ativar a janela correspondente ao arquivo ou pasta aberta.
+
+    A função procura, por até 10 tentativas, uma janela cujo título contenha
+    o nome do arquivo/pasta especificado e tenta ativá-la usando o `pygetwindow`.
+
+    Observações:
+        - Essencial para evitar que pop-ups capturem o foco.
+        - A ativação pode falhar caso permissões ou o SO impeçam.
+        - Funciona somente em Windows.
+
+    Args:
+        caminho (str): Caminho do arquivo ou pasta cujo foco deve ser ativado.
+
+    Returns:
+        bool: True se a janela foi ativada com sucesso; False caso contrário.
+    """
+    
     nome = os.path.basename(caminho)
 
     for _ in range(10):
@@ -36,13 +91,54 @@ def focar_arquivo(caminho):
         time.sleep(0.2)
 
     return False
-        
-#Envia arquivos (vídeo, foto, pdf, etc)
-def enviar_imagem(caminho):
-    if not os.path.exists(caminho):
-        return False, caminho
+
+def copiar_colar_arquivos():
+    """
+    Copia o(s) arquivo(s) selecionado(s), fecha a janela atual do Explorer
+    e cola no chat, enviando-os automaticamente.
+
+    A sequência executada é:
+        1. Ctrl+C — copia os arquivos selecionados.
+        2. Alt+F4 — fecha a janela do Explorer que foi aberta anteriormente.
+        3. Ctrl+V — cola os arquivos no campo de envio do chat.
+        4. Enter — confirma o envio.
+
+    Observações:
+        - Funciona somente no Windows.
+        - O envio pode falhar se outra janela capturar o foco, porém a chance é baixa.
+    """
+    pyautogui.hotkey('ctrl', 'c')
+    time.sleep(1)
+    pyautogui.hotkey('alt', 'f4')
+    time.sleep(1)
+    pyautogui.hotkey('ctrl', 'v')
+    time.sleep(3)
+    pyautogui.press('enter')
+    time.sleep(3)
  
+
+def enviar_imagem(caminho):
+    """
+    Envia uma única imagem através do chat automatizando o Explorer.
+
+    O arquivo é aberto via `os.startfile()`, a janela é focada, o arquivo
+    é copiado e enviado ao chat usando `copiar_colar_arquivos()`.
+
+    Compatibilidade:
+        - Funciona somente em Windows.
+        - Aceita qualquer extensão que o Explorer abra como imagem.
+
+    Args:
+        caminho (str): Caminho completo do arquivo de imagem.
+
+    Returns:
+        tuple:
+            bool: True se enviado com sucesso, False se houve erro.
+            str | None: Caminho do arquivo em caso de erro, None caso contrário.
+    """
     
+    if not os.path.exists(caminho): # Se o caminho não existe, retorna o erro
+        return False, caminho
  
     os.startfile(caminho)
     time.sleep(2)
@@ -51,23 +147,32 @@ def enviar_imagem(caminho):
     if not focou:
         print("Aviso: não foi possível focar a janela do arquivo")
     time.sleep(0.2)
-
     
-    pyautogui.hotkey('ctrl', 'c')
-    time.sleep(0.8)
-    pyautogui.hotkey('alt', 'f4')
-    time.sleep(1)
-    pyautogui.hotkey('ctrl', 'v')
-    time.sleep(2.5)
-    pyautogui.press('enter')
-    time.sleep(2)
+    copiar_colar_arquivos()
     
     return True, None
 
 def enviar_arquivos_pasta(caminho):
-    if not os.path.exists(caminho):
+    """
+    Envia todos os arquivos de uma pasta via chat.
+
+    A função abre a pasta, ativa a janela, seleciona todos os arquivos
+    com Ctrl+A e os envia usando `copiar_colar_arquivos()`.
+
+    Compatibilidade:
+        - Funciona somente em Windows.
+        - Depende totalmente do Explorer e da interface gráfica.
+
+    Args:
+        caminho (str): Caminho da pasta.
+
+    Returns:
+        tuple:
+            bool: True se o envio foi bem-sucedido; False caso o caminho não exista.
+            str | None: Caminho da pasta em caso de erro; None caso contrário.
+    """
+    if not os.path.exists(caminho): # Se o caminho não existe, retorna o erro
         return False, caminho
- 
  
     os.startfile(caminho)
     time.sleep(2)
@@ -79,18 +184,33 @@ def enviar_arquivos_pasta(caminho):
     
     pyautogui.hotkey('ctrl', 'a')
     time.sleep(0.8)
-    pyautogui.hotkey('ctrl', 'c')
-    time.sleep(0.8)
-    pyautogui.hotkey('alt', 'f4')
-    time.sleep(1)
-    pyautogui.hotkey('ctrl', 'v')
-    time.sleep(2.5)
-    pyautogui.press('enter')
-    time.sleep(2)
+    
+    copiar_colar_arquivos()
     
     return True, None
 
 def enviar_tudo(mensagens):
+    """
+    Processa uma lista de mensagens e executa ações automáticas de envio.
+
+    A função identifica o tipo de comando:
+        - `/enviar_imagem C:\Caminho\da\imagem.png'`: envia uma imagem específica.
+        - `/enviar_pasta C:\Caminho\da\pasta'`: envia todos os arquivos de uma pasta.
+        - Caso contrário: envia texto, se o texto conter caracteres especiais, utiliza
+        caracteres_especiais() para copiar e colar o envio de texto
+
+    Observações:
+        - Envio de arquivos (imagem e pasta) funciona somente no Windows
+
+    Args:
+        mensagens (list[str]): Lista de comandos ou textos comuns.
+
+    Returns:
+        tuple:
+            bool: True se tudo ocorreu bem; False se algum arquivo falhou.
+            str | None: Caminho do arquivo/pasta com erro, se houver.
+    """
+
     erro_encontrado = None
     for mensagem in mensagens:
         if mensagem.startswith('/enviar_imagem'):
@@ -109,7 +229,7 @@ def enviar_tudo(mensagens):
                 
                 
         else:
-            if re.search(r"[^a-zA-Z0-9\s]", mensagem):
+            if re.search(r"[^a-zA-Z0-9\s]", mensagem): # Verifica se tem caractéres especiais
                 caracteres_especiais(mensagem)
             else:
                 escrever(mensagem)

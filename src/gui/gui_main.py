@@ -4,34 +4,39 @@ import src.gui.gui_help as gui_help
 import customtkinter as ctk
 
 def interface():
-    mensagens = messages_repo.carregar_mensagens()
+    mensagens = messages_repo.carregar_mensagens() # Carrega as mensagens em uma lista
     
     janela_ajuda = None
     
     def limpar_alerta():
+        """Limpa o texto do alerta de erros na interface."""
         label_alerta.configure(text='')
         
               
     def adicionar():
+        """Adiciona a mensagem digitada na lista, atualiza a Textbox e habilita botões desativados"""
         mensagem = campo_mensagens.get().strip()
         if messages_repo.adicionar_mensagens(mensagens, mensagem):
             campo_mensagens.delete(0, 'end')
-        atualizar_textbox()
-        ativar_botoes()
+        atualizar_textbox() # Atualiza o Textbox para visualizar as mensagens
+        ativar_botoes()     
 
 
     def apagar():
+        """Remove todas as mensagens da lista e atualiza a Textbox e alertas da interface."""
         messages_repo.apagar_tudo(mensagens)
         atualizar_textbox()
-        ativar_botoes()
-        limpar_alerta()
+        ativar_botoes()     
+        limpar_alerta() # Limpa o alerta de erros, presumindo que o usuário corrigirá o problema
 
 
     def enviar():
-        segundos = 5
-        desativar_botoes()
+        """Envia todas as mensagens da lista após uma contagem regressiva."""
+        segundos = 5 # Tempo em segundos antes de iniciar o envio
+        desativar_botoes() # Desativa os botões para evitar interações durante o envio
         
         def atualizar_contagem():
+            """Atualiza a contagem regressiva e envia as mensagens ao final."""
             nonlocal segundos
             label_alerta.configure(text=f"Você tem {segundos} segundos para clicar na conversa...")
 
@@ -39,20 +44,19 @@ def interface():
                 segundos -= 1
                 app.after(1200, atualizar_contagem)
             else:
-                sucesso, info = automation.enviar_tudo(mensagens)
-                ativar_botoes()
+                sucesso, info = automation.enviar_tudo(mensagens) # Envia todas as mensagens
+                ativar_botoes() 
                 
                 if sucesso:
                     limpar_alerta()
                 else:
-                    label_alerta.configure(text=f'Caminho do arquivo "{info}" não encontrado', font=ctk.CTkFont(size=12) )    
+                    label_alerta.configure(text=f'Caminho do arquivo "{info}" não encontrado', font=ctk.CTkFont(size=12) )  # Informa qual mensagem possui caminho de arquivo inválido
                 
         atualizar_contagem()
 
-
     
     def atualizar_textbox():
-        """Exibe o conteúdo da lista de mensagens no bloco de texto."""
+        """Exibe o conteúdo da lista de mensagens na Textbox."""
         bloco_texto.configure(state='normal')
         bloco_texto.delete("1.0", "end")
         for msg in mensagens:
@@ -62,20 +66,21 @@ def interface():
 
 
     def sincronizar_lista_com_textbox():
-        """Atualiza a lista 'mensagens' com o que está no bloco de texto."""
+        """Atualiza a lista 'mensagens' com o que está na Textbox."""
         conteudo = bloco_texto.get("1.0", "end").strip()
         novas_mensagens = [linha for linha in conteudo.split("\n") if linha.strip()]
         
-        mensagens.clear()
-        mensagens.extend(novas_mensagens)
+        mensagens.clear() # Apaga a lista antiga
+        mensagens.extend(novas_mensagens) # Adiciona na lista o conteúdo da Textbox
         
-        messages_repo.salvar_mensagens(mensagens)
+        messages_repo.salvar_mensagens(mensagens) # Salva as novas mensagens de acordo com a Textbox
         campo_mensagens.delete(0, 'end')
         
         ativar_botoes()
     
     
     def desativar_botoes():
+        """Desativa todos os botões da interface"""
         botao_atualizar.configure(state="disabled")
         botao_apagar.configure(state="disabled")
         botao_enviar.configure(state="disabled")
@@ -83,6 +88,7 @@ def interface():
      
         
     def ativar_botoes():
+        """Ativa todos os botões da interface"""
         botao_atualizar.configure(state="normal")
         botao_apagar.configure(state="normal")
         botao_enviar.configure(state="normal")
@@ -90,41 +96,44 @@ def interface():
        
                  
     def modificar_textbox(event=None):
+        """Detecta alterações no conteúdo da Textbox e ajusta os botões da interface."""
         if bloco_texto.edit_modified():
             bloco_texto.edit_modified(False)
             desativar_botoes()
-            limpar_alerta()
-            botao_atualizar.configure(state="normal")
+            limpar_alerta() # Limpa o alerta de erros, presumindo que o usuário corrigirá o problema
+            botao_atualizar.configure(state="normal") # Força o usuário clicar no botão atualizar
     
     
     def modificar_entry(event=None):
+        """Detecta alterações no campo de entrada e habilita o botão 'Adicionar'."""
         desativar_botoes()
         botao_adicionar.configure(state="normal")
         
     
     def abrir_ajuda():
+        """Abre a Janela de ajuda/tutorial"""
         nonlocal janela_ajuda
         desativar_botoes()
         
-        if janela_ajuda is not None and janela_ajuda.winfo_exists():
+        if janela_ajuda is not None and janela_ajuda.winfo_exists(): # Foca na janela de ajuda
             janela_ajuda.focus()
             return
 
         def ao_fechar():
+            """Função chamada ao fechar a janela de ajuda; destrói a janela e reativa os botões."""
             nonlocal janela_ajuda
             janela_ajuda.destroy()
             janela_ajuda = None
             ativar_botoes()
 
-        janela_ajuda = gui_help.help_interface(master=app)
+        janela_ajuda = gui_help.help_interface(master=app) # Cria a janela de ajuda
 
-        janela_ajuda.protocol("WM_DELETE_WINDOW", ao_fechar)
-
-                  
+        janela_ajuda.protocol("WM_DELETE_WINDOW", ao_fechar)              
      
-    # ======== INTERFACE ================
+    # ======== INTERFACE ============
     ctk.set_appearance_mode('dark')
 
+    #Cria a janela
     app = ctk.CTk()
     app.title('Mensagens Automáticas')
     app.geometry('350x450')
@@ -148,7 +157,7 @@ def interface():
     )
     botao_ajuda.grid(row=0, column=0, padx=(17, 10), sticky="w")
     
-    # ======== BLOCO DE TEXTO (tipo bloco de notas) ========
+    # ======== BLOCO DE TEXTO (Textbox) ========
     frame_texto = ctk.CTkFrame(app)
     frame_texto.grid(row=1, column=0, padx=15, pady=10, sticky="nsew")
 
@@ -160,8 +169,6 @@ def interface():
 
     # Inicializa com mensagens existentes
     atualizar_textbox()
-    
-    
     
     # Frame principal que agrupa os botões e o campo de entrada
     frame_principal = ctk.CTkFrame(app, fg_color='transparent')
@@ -191,7 +198,9 @@ def interface():
 
     botao_adicionar = ctk.CTkButton(frame_entry, text='Adicionar', command=adicionar, height=30, width=90)
     botao_adicionar.pack(side='left')
+
     
+    # Frame da área de alerta
     frame_alerta = ctk.CTkFrame(frame_principal, fg_color='transparent')
     frame_alerta.grid(row=2, column=0, pady=(0, 10))
 
@@ -199,5 +208,5 @@ def interface():
     label_alerta.pack()
     
 
-    ativar_botoes()
-    app.mainloop()
+    ativar_botoes() 
+    app.mainloop() # Inicia a interface

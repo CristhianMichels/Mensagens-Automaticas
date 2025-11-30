@@ -67,7 +67,7 @@ def help_interface(master = None):
 
         comando1 = subtitulo("Comando:")
         comando1.pack(anchor="w", padx=20)
-        cmd_text1 = texto_normal('/enviar_imagem C:\\Caminho\\da\\imagem.png')
+        cmd_text1 = texto_normal('/enviar_imagem C:\Caminho\da\imagem.png')
         cmd_text1.pack(anchor="w", padx=20, pady=(0, 5))
 
         descricao1 = subtitulo("Descrição:")
@@ -84,7 +84,7 @@ def help_interface(master = None):
 
         comando2 = subtitulo("Comando:")
         comando2.pack(anchor="w", padx=20)
-        cmd_text2 = texto_normal('/enviar_pasta C:\\Caminho\\da\\pasta')
+        cmd_text2 = texto_normal('/enviar_pasta C:\Caminho\da\pasta')
         cmd_text2.pack(anchor="w", padx=20, pady=(0, 5))
 
         descricao2 = subtitulo("Descrição:")

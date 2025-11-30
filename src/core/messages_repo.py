@@ -4,6 +4,7 @@ arquivo_mensagem = 'data/messages.txt'
 
 
 def carregar_mensagens():
+    """Carrega as mensagens antigas, caso existam """
     if os.path.exists(arquivo_mensagem):
         with open(arquivo_mensagem, 'r') as arquivo:
             return [linha.strip() for linha in arquivo.readlines() if linha.strip()]
@@ -12,12 +13,14 @@ def carregar_mensagens():
 
 
 def salvar_mensagens(lista):
+    """Salva as mudanças/novas edições"""
     with open(arquivo_mensagem, "w") as arquivo:
         for msg in lista:
             arquivo.write(msg + "\n")
 
 
 def adicionar_mensagens(lista, mensagem):
+    """Adiciona uma nova mensagem à lista e ao arquivo."""
     mensagem = mensagem.strip()
     if mensagem:
         lista.append(mensagem)
@@ -28,5 +31,6 @@ def adicionar_mensagens(lista, mensagem):
 
 
 def apagar_tudo(lista):
+    """Apaga todas as mensagens da lista e limpa o arquivo."""
     lista.clear()
     open(arquivo_mensagem,'w').close()
