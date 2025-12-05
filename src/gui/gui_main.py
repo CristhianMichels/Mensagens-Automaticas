@@ -1,33 +1,39 @@
-import src.core.automation as automation
+import src.core.controller as controller
 import src.core.messages_repo as messages_repo
 import src.gui.gui_help as gui_help
 import customtkinter as ctk
 
 def interface():
-    mensagens = messages_repo.carregar_mensagens() # Carrega as mensagens em uma lista
-    
     janela_ajuda = None
+    
+    mensagens = messages_repo.carregar_mensagens() #inicia a lista das mensagens
     
     def limpar_alerta():
         """Limpa o texto do alerta de erros na interface."""
         label_alerta.configure(text='')
+     
         
-              
+    def alerta(msg_alerta):
+        label_alerta.configure(text=msg_alerta, font=ctk.CTkFont(size=14))
+        
+                 
     def adicionar():
         """Adiciona a mensagem digitada na lista, atualiza a Textbox e habilita botões desativados"""
         mensagem = campo_mensagens.get().strip()
-        if messages_repo.adicionar_mensagens(mensagens, mensagem):
+        if controller.adicionar(mensagem,mensagens):
             campo_mensagens.delete(0, 'end')
-        atualizar_textbox() # Atualiza o Textbox para visualizar as mensagens
-        ativar_botoes()     
+        else:
+            alerta('A Mensagem está vazia')
+        renderizar_textbox() # Atualiza o Textbox para visualizar as mensagens
+        ativar_botoes()
 
 
     def apagar():
-        """Remove todas as mensagens da lista e atualiza a Textbox e alertas da interface."""
-        messages_repo.apagar_tudo(mensagens)
-        atualizar_textbox()
+        """Remove todas as mensagens da lista, limpa o arquivo, atualiza a Textbox e alertas da interface."""
+        controller.apagar(mensagens)
+        renderizar_textbox()
         ativar_botoes()     
-        limpar_alerta() # Limpa o alerta de erros, presumindo que o usuário corrigirá o problema
+        limpar_alerta() # Limpa o alerta de erros
 
 
     def enviar():
@@ -38,24 +44,26 @@ def interface():
         def atualizar_contagem():
             """Atualiza a contagem regressiva e envia as mensagens ao final."""
             nonlocal segundos
-            label_alerta.configure(text=f"Você tem {segundos} segundos para clicar na conversa...")
+            alerta(f"Você tem {segundos} segundos para clicar na conversa...")
 
             if segundos >= 0:
                 segundos -= 1
                 app.after(1200, atualizar_contagem)
             else:
-                sucesso, info = automation.enviar_tudo(mensagens) # Envia todas as mensagens
+                sucesso, info = controller.enviar_tudo(mensagens) # Envia todas as mensagens
                 ativar_botoes() 
                 
                 if sucesso:
                     limpar_alerta()
                 else:
-                    label_alerta.configure(text=f'Caminho do arquivo "{info}" não encontrado', font=ctk.CTkFont(size=12) )  # Informa qual mensagem possui caminho de arquivo inválido
+                    alerta(f'Caminho do arquivo "{info}" não encontrado')
+                    label_alerta.configure(font=ctk.CTkFont(size=12))
+                    # Informa qual mensagem possui caminho de arquivo inválido
                 
         atualizar_contagem()
 
     
-    def atualizar_textbox():
+    def renderizar_textbox():
         """Exibe o conteúdo da lista de mensagens na Textbox."""
         bloco_texto.configure(state='normal')
         bloco_texto.delete("1.0", "end")
@@ -68,14 +76,8 @@ def interface():
     def sincronizar_lista_com_textbox():
         """Atualiza a lista 'mensagens' com o que está na Textbox."""
         conteudo = bloco_texto.get("1.0", "end").strip()
-        novas_mensagens = [linha for linha in conteudo.split("\n") if linha.strip()]
-        
-        mensagens.clear() # Apaga a lista antiga
-        mensagens.extend(novas_mensagens) # Adiciona na lista o conteúdo da Textbox
-        
-        messages_repo.salvar_mensagens(mensagens) # Salva as novas mensagens de acordo com a Textbox
+        controller.sincronizar(conteudo, mensagens)
         campo_mensagens.delete(0, 'end')
-        
         ativar_botoes()
     
     
@@ -107,6 +109,7 @@ def interface():
     def modificar_entry(event=None):
         """Detecta alterações no campo de entrada e habilita o botão 'Adicionar'."""
         desativar_botoes()
+        limpar_alerta()
         botao_adicionar.configure(state="normal")
         
     
@@ -168,7 +171,7 @@ def interface():
     bloco_texto.bind("<<Modified>>", modificar_textbox)
 
     # Inicializa com mensagens existentes
-    atualizar_textbox()
+    renderizar_textbox()
     
     # Frame principal que agrupa os botões e o campo de entrada
     frame_principal = ctk.CTkFrame(app, fg_color='transparent')
