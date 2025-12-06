@@ -2,7 +2,7 @@ import src.core.messages_repo as messages_repo
 import src.core.automation as automation
 
 
-# Funcções Mensagens:
+# Funções Mensagens:
 def adicionar(msg, lista):
     """Adiciona a mensagem digitada na lista"""
     msg = msg.strip()
@@ -28,7 +28,7 @@ def sincronizar(conteudo, lista):
     
     messages_repo.salvar_mensagens(lista)
 
-# Funcções Automação
+# Funções Automação
 def enviar_tudo(lista):
     """Envia todas as mensagens da lista"""
     sucesso, info = automation.enviar_tudo(lista)
