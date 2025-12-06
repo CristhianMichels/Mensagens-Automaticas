@@ -117,6 +117,14 @@ def copiar_colar_arquivos():
     time.sleep(3)
  
 
+def verificar_caminho(caminho):
+    if not os.path.exists(caminho): # Se o caminho não existe, retorna o erro
+        erro = f'Caminho do arquivo "{caminho}" não encontrado'
+        print(erro)
+        return False, erro
+    return True, None
+
+
 def enviar_imagem(caminho):
     """
     Envia uma única imagem através do chat automatizando o Explorer.
@@ -136,21 +144,25 @@ def enviar_imagem(caminho):
             bool: True se enviado com sucesso, False se houve erro.
             str | None: Caminho do arquivo em caso de erro, None caso contrário.
     """
+    try:
+        sucesso, info = verificar_caminho(caminho)
+        if not sucesso:
+            return False, info
     
-    if not os.path.exists(caminho): # Se o caminho não existe, retorna o erro
-        return False, caminho
- 
-    os.startfile(caminho)
-    time.sleep(2)
+        os.startfile(caminho)
+        time.sleep(2)
+        
+        focou = focar_arquivo(caminho)
+        if not focou:
+            print("Aviso: não foi possível focar a janela do arquivo")
+        time.sleep(0.2)
+        
+        copiar_colar_arquivos()
+        
+        return True, None
     
-    focou = focar_arquivo(caminho)
-    if not focou:
-        print("Aviso: não foi possível focar a janela do arquivo")
-    time.sleep(0.2)
-    
-    copiar_colar_arquivos()
-    
-    return True, None
+    except:
+        return False, 'O envio de imagem falhou'
 
 def enviar_arquivos_pasta(caminho):
     """
@@ -171,24 +183,29 @@ def enviar_arquivos_pasta(caminho):
             bool: True se o envio foi bem-sucedido; False caso o caminho não exista.
             str | None: Caminho da pasta em caso de erro; None caso contrário.
     """
-    if not os.path.exists(caminho): # Se o caminho não existe, retorna o erro
-        return False, caminho
- 
-    os.startfile(caminho)
-    time.sleep(2)
+    try:
+        sucesso, info = verificar_caminho(caminho)
+        if not sucesso:
+            return False, info
     
-    focou = focar_arquivo(caminho)
-    if not focou:
-        print("Aviso: não foi possível focar a janela do arquivo")
-    time.sleep(0.2)
+        os.startfile(caminho)
+        time.sleep(2)
+        
+        focou = focar_arquivo(caminho)
+        if not focou:
+            print("Aviso: não foi possível focar a janela do arquivo")
+        time.sleep(0.2)
+        
+        pyautogui.hotkey('ctrl', 'a')
+        time.sleep(0.8)
+        
+        copiar_colar_arquivos()
+        
+        return True, None
+    except:
+        return False, 'O envio de pasta falhou'
     
-    pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.8)
     
-    copiar_colar_arquivos()
-    
-    return True, None
-
 def enviar_tudo(mensagens):
     """
     Processa uma lista de mensagens e executa ações automáticas de envio.
@@ -197,7 +214,7 @@ def enviar_tudo(mensagens):
         - `/enviar_imagem C:\Caminho\da\imagem.png'`: envia uma imagem específica.
         - `/enviar_pasta C:\Caminho\da\pasta'`: envia todos os arquivos de uma pasta.
         - Caso contrário: envia texto, se o texto conter caracteres especiais, utiliza
-        caracteres_especiais() para copiar e colar o envio de texto
+        - caracteres_especiais() para copiar e colar o envio de texto
 
     Observações:
         - Envio de arquivos (imagem e pasta) funciona somente no Windows
@@ -211,29 +228,29 @@ def enviar_tudo(mensagens):
             str | None: Caminho do arquivo/pasta com erro, se houver.
     """
 
-    erro_encontrado = None
-    for mensagem in mensagens:
-        if mensagem.startswith('/enviar_imagem'):
-            caminho = mensagem.split(" ", 1)[1]
-            sucesso, info = enviar_imagem(caminho)
-            if not sucesso:
-                erro_encontrado = info
-                print('Erro: ', erro_encontrado)
-                
-        elif mensagem.startswith('/enviar_pasta'):
-            caminho = mensagem.split(" ", 1)[1]
-            sucesso, info = enviar_arquivos_pasta(caminho)
-            if not sucesso:
-                erro_encontrado = info
-                print('Erro: ', erro_encontrado)
-                
-                
-        else:
-            if re.search(r"[^a-zA-Z0-9\s]", mensagem): # Verifica se tem caractéres especiais
-                caracteres_especiais(mensagem)
+    try:
+        erro_encontrado = None
+        for mensagem in mensagens:
+            if mensagem.startswith('/enviar_imagem'):
+                caminho = mensagem.split(" ", 1)[1]
+                sucesso, info = enviar_imagem(caminho)
+                if not sucesso:
+                    erro_encontrado = info
+                    
+            elif mensagem.startswith('/enviar_pasta'):
+                caminho = mensagem.split(" ", 1)[1]
+                sucesso, info = enviar_arquivos_pasta(caminho)
+                if not sucesso:
+                    erro_encontrado = info        
+                    
             else:
-                escrever(mensagem)
-    
-    if erro_encontrado:
-        return False, erro_encontrado
-    return True, None
+                if re.search(r"[^a-zA-Z0-9\s]", mensagem): # Verifica se tem caractéres especiais
+                    caracteres_especiais(mensagem)
+                else:
+                    escrever(mensagem)
+        
+        if erro_encontrado:
+            return False, erro_encontrado
+        return True, None
+    except:
+        return False, 'Erro: não foi possível enviar as mensagens'

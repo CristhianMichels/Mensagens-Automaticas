@@ -56,7 +56,7 @@ def interface():
                 if sucesso:
                     limpar_alerta()
                 else:
-                    alerta(f'Caminho do arquivo "{info}" não encontrado')
+                    alerta(info)
                     label_alerta.configure(font=ctk.CTkFont(size=12))
                     # Informa qual mensagem possui caminho de arquivo inválido
                 
