@@ -4,6 +4,7 @@ import os
 import pyperclip
 import re
 import pygetwindow as gw
+import src.utils.utils as utils
 
 
 def escrever(texto):
@@ -118,6 +119,10 @@ def copiar_colar_arquivos():
  
 
 def verificar_caminho(caminho):
+    """
+    Verifica se o caminho existe
+    caso não exista, retorna o erro.
+    """
     if not os.path.exists(caminho): # Se o caminho não existe, retorna o erro
         erro = f'Caminho do arquivo "{caminho}" não encontrado'
         print(erro)
@@ -141,10 +146,14 @@ def enviar_imagem(caminho):
 
     Returns:
         tuple:
-            bool: True se enviado com sucesso, False se houve erro.
+            bool: True se enviado com sucesso; False se houve erro; False se o sistema operacional não for windows..
             str | None: Caminho do arquivo em caso de erro, None caso contrário.
     """
     try:
+        sistema = utils.identificar_sistema_operacional()
+        if sistema != 'Windows':
+            return False, 'Alerta: Comandos especiais funcionam apenas para Windows'
+        
         sucesso, info = verificar_caminho(caminho)
         if not sucesso:
             return False, info
@@ -180,10 +189,14 @@ def enviar_arquivos_pasta(caminho):
 
     Returns:
         tuple:
-            bool: True se o envio foi bem-sucedido; False caso o caminho não exista.
+            bool: True se o envio foi bem-sucedido; False caso o caminho não exista; False se o sistema operacional não for windows.
             str | None: Caminho da pasta em caso de erro; None caso contrário.
     """
     try:
+        sistema = utils.identificar_sistema_operacional()
+        if sistema != 'Windows':
+            return False, 'Alerta: Comandos especiais funcionam apenas para Windows'
+        
         sucesso, info = verificar_caminho(caminho)
         if not sucesso:
             return False, info
@@ -204,7 +217,30 @@ def enviar_arquivos_pasta(caminho):
         return True, None
     except:
         return False, 'O envio de pasta falhou'
+
+
+def  executar_comando_de_arquivo(mensagem):
+    """
+        Verifica se a mensagem é um comando de envio de arquivo
+        (/enviar_imagem ou /enviar_pasta). 
+        Se for, executa a função correspondente.
+
+        Returns:
+            - (True, None)  → comando executado com sucesso
+            - (False, erro) → comando executado, mas falhou
+            - (None, None)  → não é comando; deve ser tratado como texto normal
+    """
+    comandos = {
+        "/enviar_imagem" : enviar_imagem,
+        "/enviar_pasta" : enviar_arquivos_pasta
+    }
     
+    for comando, funcao in comandos.items():
+        if mensagem.startswith(comando):
+            caminho = mensagem.split(" ", 1)[1].strip()
+            return funcao(caminho) # Retorna sucesso, info
+    return None, None # não é comando de envio de arquivo
+  
     
 def enviar_tudo(mensagens):
     """
@@ -231,23 +267,16 @@ def enviar_tudo(mensagens):
     try:
         erro_encontrado = None
         for mensagem in mensagens:
-            if mensagem.startswith('/enviar_imagem'):
-                caminho = mensagem.split(" ", 1)[1]
-                sucesso, info = enviar_imagem(caminho)
+            sucesso, info = executar_comando_de_arquivo(mensagem)
+            if sucesso is not None:
                 if not sucesso:
                     erro_encontrado = info
-                    
-            elif mensagem.startswith('/enviar_pasta'):
-                caminho = mensagem.split(" ", 1)[1]
-                sucesso, info = enviar_arquivos_pasta(caminho)
-                if not sucesso:
-                    erro_encontrado = info        
-                    
+                continue       
+            
+            if re.search(r"[^a-zA-Z0-9\s]", mensagem): # Verifica se tem caractéres especiais
+                caracteres_especiais(mensagem)
             else:
-                if re.search(r"[^a-zA-Z0-9\s]", mensagem): # Verifica se tem caractéres especiais
-                    caracteres_especiais(mensagem)
-                else:
-                    escrever(mensagem)
+                escrever(mensagem)
         
         if erro_encontrado:
             return False, erro_encontrado
