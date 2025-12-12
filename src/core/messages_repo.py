@@ -1,6 +1,22 @@
 import os
+import sys
 
-arquivo_mensagem = 'data/messages.txt'
+def caminho_base():
+    """Retorna a pasta onde o EXE está rodando, ou a pasta do script."""
+    if hasattr(sys, "_MEIPASS"):
+        # Estamos rodando via PyInstaller → usar a pasta onde o EXE está
+        return os.path.dirname(sys.executable)
+    else:
+        # Rodando pelo Python normal → usar o diretório do projeto
+        return os.path.dirname(os.path.abspath(__file__))
+
+
+# Criar a pasta 'data' ao lado do executável se não existir
+pasta_data = os.path.join(caminho_base(), "data")
+os.makedirs(pasta_data, exist_ok=True)
+
+# Caminho completo do arquivo REAL
+arquivo_mensagem = os.path.join(pasta_data, "messages.txt")
 
 
 def carregar_mensagens():

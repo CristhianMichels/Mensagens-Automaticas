@@ -93,6 +93,7 @@ def focar_arquivo(caminho):
 
     return False
 
+
 def copiar_colar_arquivos():
     """
     Copia o(s) arquivo(s) selecionado(s), fecha a janela atual do Explorer
@@ -172,6 +173,7 @@ def enviar_imagem(caminho):
     
     except:
         return False, 'O envio de imagem falhou'
+
 
 def enviar_arquivos_pasta(caminho):
     """

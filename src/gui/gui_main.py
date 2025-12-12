@@ -1,7 +1,9 @@
 import src.core.controller as controller
 import src.core.messages_repo as messages_repo
 import src.gui.gui_help as gui_help
+from src.utils.utils import aplicar_icone
 import customtkinter as ctk
+import tkinter as tk
 
 def interface():
     janela_ajuda = None
@@ -111,7 +113,8 @@ def interface():
         desativar_botoes()
         limpar_alerta()
         botao_adicionar.configure(state="normal")
-        
+    
+    
     
     def abrir_ajuda():
         """Abre a Janela de ajuda/tutorial"""
@@ -137,10 +140,16 @@ def interface():
     ctk.set_appearance_mode('dark')
 
     #Cria a janela
-    app = ctk.CTk()
-    app.title('Mensagens Automáticas')
-    app.geometry('350x450')
+    app = tk.Tk()
+    app.title("Mensagens Automáticas")
+    app.geometry("350x450")
+    app.attributes("-topmost", True)
+    app.configure(bg="#1F1F1F")
 
+    
+    aplicar_icone(app)
+
+    
     # Configurações de grid para centralização vertical
     app.grid_rowconfigure((0, 1, 2, 3), weight=1)
     app.grid_columnconfigure(0, weight=1)

@@ -1,13 +1,18 @@
 import customtkinter as ctk
+from src.utils.utils import aplicar_icone
+import tkinter as tk
 
 
 
 def help_interface(master = None):
     # Criar a janela
-        janela_ajuda = ctk.CTkToplevel(master)
+        janela_ajuda = tk.Toplevel(master)
         janela_ajuda.title("Ajuda / Tutorial")
         janela_ajuda.geometry("340x400")
         janela_ajuda.attributes("-topmost", True)
+        janela_ajuda.configure(bg="#1F1F1F")
+        
+        janela_ajuda.after(0, lambda: aplicar_icone(janela_ajuda))
 
         frame = ctk.CTkScrollableFrame(janela_ajuda)
         frame.pack(fill="both", expand=True, padx=10, pady=10)
