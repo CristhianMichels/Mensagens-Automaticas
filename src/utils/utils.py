@@ -7,23 +7,23 @@ import pyperclip
 
 def caminho_icone(relativo):
     """
-    Retorna o caminho correto de um arquivo
-    tanto quando rodando normal quanto no PyInstaller.
+    Retorna o caminho correto do arquivo tanto no Python normal
+    quanto no executável do PyInstaller.
     """
-    # Quando está no executável
+    # Quando rodando pelo PyInstaller
     if hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, relativo)
+        return os.path.join(sys._MEIPASS, "src", relativo)
 
-    # Quando está no Python normal
-    base = os.path.dirname(os.path.abspath(__file__))  # src/core
-    base = os.path.abspath(os.path.join(base, ".."))    # src/
+    # Rodando normal (VSCode)
+    base = os.path.dirname(os.path.abspath(__file__))  # src/utils
+    base = os.path.abspath(os.path.join(base, ".."))   # src/
     return os.path.join(base, relativo)
 
 
 def aplicar_icone(janela):
     """Aplica ícone universal em qualquer janela Tkinter/CTkToplevel"""
     if identificar_sistema_operacional() == 'Windows':
-        janela.iconbitmap(caminho_icone("core/icon/icon64.ico"))
+        janela.iconbitmap(caminho_icone("core/icon/icon32.ico"))
     else:
         icone = tk.PhotoImage(file=caminho_icone("core/icon/icon64.png"))
         janela.iconphoto(True, icone)
